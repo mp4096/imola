@@ -103,3 +103,39 @@ def interpolate_points_derivative(points, num_interpolated, smoothing=0.05):
     parameter_range = np.linspace(0.0, 1.0, num_interpolated)
     return np.array(splev(parameter_range, tck, der=1))
 
+
+def interpolate_points_yaw(points, num_interpolated, smoothing=0.05):
+    """Compute the yaw along the spline defined by planar points.
+
+    Given ``num_original`` points specified by their (x, y)-coordinates,
+    interpolate between them using a cubic spline and
+    at ``num_interpolated`` new points. Now compute the angle of the
+    tangential vecotr at each interpolated point.
+
+    Parameters
+    ----------
+    points : (2, num_original) array_like
+        original points (as column vectors)
+
+    num_interpolated : int
+        number of the interpolated points. Should be a positive integer
+        and greater than the number of original points
+
+    smoothing : float, optional
+        smoothing condition for the spline interpolation,
+        see documentation for ``scipy.interpolate.splprep``
+
+    Returns
+    -------
+    (num_interpolated,) ndarray
+        yaw at interpolated points
+
+    """
+    der = interpolate_points_derivative(
+        points,
+        num_interpolated,
+        smoothing=smoothing,
+        )
+    der_normalised = der/np.linalg.norm(der, axis=0)
+    return np.arctan2(der_normalised[1, :], der_normalised[0, :])
+
