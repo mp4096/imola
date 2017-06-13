@@ -1,5 +1,9 @@
+"""Ground truth generator for lane estimator benchmarking."""
+
 import codecs
 import numpy as np
+import scipy as sp
+from scipy.interpolate import splev, splprep, splrep
 import yaml
 
 
@@ -30,4 +34,38 @@ def load_scenario(filename):
     ego_motion = np.array(data["ego_motion"]).T
 
     return lane, ego_motion
+
+
+def interpolate_points(points, num_interpolated, smoothing=0.05):
+    """Interpolate planar points with a spline.
+
+    Given ``num_original`` points specified by their (x, y)-coordinates,
+    interpolate between them using a cubic spline and
+    return ``num_interpolated`` new points.
+
+    Parameters
+    ----------
+    points : (2, num_original) array_like
+        original points (as column vectors)
+
+    num_interpolated : int
+        number of the interpolated points. Should be a positive integer
+        and greater than the number of original points
+
+    smoothing : float, optional
+        smoothing condition for the spline interpolation,
+        see documentation for ``scipy.interpolate.splprep``
+
+    Returns
+    -------
+    (2, num_interpolated) ndarray
+        interpolated points
+
+    """
+    points = np.array(points)
+    # Get a (cubic) B-spline representation of the (x, y)-points
+    tck, _ = splprep((points[0, :], points[1, :]), k=3, s=smoothing)
+    # Get the new, finer, spline parameter range
+    parameter_range = np.linspace(0.0, 1.0, num_interpolated)
+    return np.array(splev(parameter_range, tck))
 
