@@ -69,3 +69,37 @@ def interpolate_points(points, num_interpolated, smoothing=0.05):
     parameter_range = np.linspace(0.0, 1.0, num_interpolated)
     return np.array(splev(parameter_range, tck))
 
+
+def interpolate_points_derivative(points, num_interpolated, smoothing=0.05):
+    """Compute derivative (tangential) along a spline defined by planar points.
+
+    Given ``num_original`` points specified by their (x, y)-coordinates,
+    interpolate between them using a cubic spline and
+    return the tangential vector at ``num_interpolated`` new points.
+
+    Parameters
+    ----------
+    points : (2, num_original) array_like
+        original points (as column vectors)
+
+    num_interpolated : int
+        number of the interpolated points. Should be a positive integer
+        and greater than the number of original points
+
+    smoothing : float, optional
+        smoothing condition for the spline interpolation,
+        see documentation for ``scipy.interpolate.splprep``
+
+    Returns
+    -------
+    (2, num_interpolated) ndarray
+        derivative of the interpolated spline
+
+    """
+    points = np.array(points)
+    # Get a (cubic) B-spline representation of the (x, y)-points
+    tck, _ = splprep((points[0, :], points[1, :]), k=3, s=smoothing)
+    # Get the new, finer, spline parameter range
+    parameter_range = np.linspace(0.0, 1.0, num_interpolated)
+    return np.array(splev(parameter_range, tck, der=1))
+
