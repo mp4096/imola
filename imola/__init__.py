@@ -8,3 +8,7 @@ from .transformations import (
     inertial_to_body_frame,
     body_to_inertial_frame,
     )
+from .views import (
+    get_view_frame_inertial,
+    get_car_view,
+    )
