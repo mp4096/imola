@@ -13,6 +13,7 @@ lane:
 
 ego_motion:
     smoothing: 0.05
+    smoothing_yaw_deviation: 1.0e-5
     velocity: 1 # interpolated samples per time step
     num_interpolated: 100
     waypoints: # [<x (m)>, <y (m)>, <phi_rel (rad)>]
