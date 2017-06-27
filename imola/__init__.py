@@ -2,7 +2,11 @@
 __version__ = "0.1"
 
 from .classes import (
+    load_yaml,
     Lane,
+    EgoMotion,
+    MeasurementNoise,
+    Camera,
     )
 from .transformations import (
     inertial_to_body_frame,
