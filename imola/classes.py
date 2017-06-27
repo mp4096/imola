@@ -98,3 +98,14 @@ class MeasurementNoise():
         rho *= self.scaling
         phi = np.random.uniform(low=-np.pi, high=np.pi, size=num_samples)
         return rho*np.vstack((np.cos(phi), np.sin(phi)))
+
+
+class Camera():
+    def __init__(self, filename):
+        with codecs.open(filename, "r", encoding="utf-8") as f:
+            data = yaml.load(f)
+        # Select the camera config only
+        cfg = data["camera"]
+
+        self.frame_width = cfg["frame_width"]
+        self.frame_height = cfg["frame_height"]
