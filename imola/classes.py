@@ -1,7 +1,6 @@
 """Ground truth generator for lane estimator benchmarking."""
 import codecs
 import numpy as np
-import scipy as sp
 from scipy.interpolate import splev, splprep
 import yaml
 
