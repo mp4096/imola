@@ -6,13 +6,14 @@ from scipy.interpolate import splev, splprep
 import yaml
 
 
-class Lane:
-    def __init__(self, filename):
-        with codecs.open(filename, "r", encoding="utf-8") as f:
-            data = yaml.load(f)
-        # Select the lane config only
-        cfg = data["lane"]
+def load_yaml(filename):
+    with codecs.open(filename, "r", encoding="utf-8") as f:
+        data = yaml.load(f)
+    return data
 
+
+class Lane:
+    def __init__(self, cfg):
         # Transpose the arrays (data points as columns)
         self.waypoints_orig = np.array(cfg["waypoints"]).T
         # Get a (cubic) B-spline representation of the points
@@ -29,12 +30,7 @@ class Lane:
 
 
 class EgoMotion:
-    def __init__(self, filename):
-        with codecs.open(filename, "r", encoding="utf-8") as f:
-            data = yaml.load(f)
-        # Select the ego motion config only
-        cfg = data["ego_motion"]
-
+    def __init__(self, cfg):
         # Transpose the arrays (data points as columns)
         points = np.array(cfg["waypoints"]).T
         self.waypoints_orig = points[:2, :]
@@ -70,12 +66,7 @@ class EgoMotion:
 
 
 class MeasurementNoise():
-    def __init__(self, filename):
-        with codecs.open(filename, "r", encoding="utf-8") as f:
-            data = yaml.load(f)
-        # Select the measurement noise config only
-        cfg = data["measurement_noise"]
-
+    def __init__(self, cfg):
         self.dof = cfg["radial"]["degrees_of_freedom"]
         self.scaling = cfg["radial"]["scaling"]
         self.expected_num = cfg["expected_number_of_measurements"]
@@ -101,11 +92,6 @@ class MeasurementNoise():
 
 
 class Camera():
-    def __init__(self, filename):
-        with codecs.open(filename, "r", encoding="utf-8") as f:
-            data = yaml.load(f)
-        # Select the camera config only
-        cfg = data["camera"]
-
+    def __init__(self, cfg):
         self.frame_width = cfg["frame_width"]
         self.frame_height = cfg["frame_height"]
