@@ -1,0 +1,36 @@
+lane:
+    smoothing: 0.05
+    num_interpolated: 100
+    waypoints: # [<x (m)>, <y (m)>]
+        - [ 0.00,  0.00]
+        - [ 0.00,  5.00]
+        - [ 3.00,  9.00]
+        - [ 7.00,  9.00]
+        - [ 7.00,  4.00]
+        - [ 4.00,  4.00]
+        - [ 4.00,  0.00]
+        - [-2.00, -4.00]
+
+ego_motion:
+    smoothing: 0.05
+    velocity: 1 # interpolated samples per time step
+    num_interpolated: 100
+    waypoints: # [<x (m)>, <y (m)>, <phi_rel (rad)>]
+        - [ 0.50,  0.50,  0.025]
+        - [-0.40,  5.00,  0.015]
+        - [ 3.00,  8.60,  0.025]
+        - [ 6.50,  9.30, -0.010]
+        - [ 6.60,  4.00, -0.020]
+        - [ 4.30,  3.60, -0.025]
+        - [ 3.85,  0.30,  0.005]
+        - [ 2.00, -5.30,  0.010]
+
+measurement_noise:
+    expected_number_of_measurements: 10
+    radial:
+        degrees_of_freedom: 2
+        scaling: 0.05
+
+camera:
+    frame_width: 0.5
+    frame_height: 1.0
