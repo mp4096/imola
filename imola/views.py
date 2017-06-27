@@ -37,10 +37,10 @@ def get_car_view(lane_inertial_frame, frame_width, frame_height,
         translation_vec,
         rotations,
         )
-    return _filter_within_frame(lane_body_frame, width, height)
+    return filter_within_frame(lane_body_frame, width, height)
 
 
-def _filter_within_frame(points, frame_width, frame_height):
+def filter_within_frame(points, frame_width, frame_height):
     """Filter points that lie within a frame.
 
     Frame specification:
