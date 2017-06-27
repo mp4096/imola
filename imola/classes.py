@@ -20,19 +20,17 @@ def load_yaml(filename):
 class Lane:
     def __init__(self, data):
         cfg = data["lane"]
-        # Transpose the arrays (data points as columns)
-        self.waypoints_orig = np.array(cfg["waypoints"]).T
+        # Transpose the array with (x, y) points as columns
+        self.xy_coarse = np.array(cfg["waypoints"]).T
         # Get a (cubic) B-spline representation of the points
-        self.waypoints_tck, self.u_orig = splprep(
-            (self.waypoints_orig[0, :], self.waypoints_orig[1, :]),
+        self.xy_tck, self.u_coarse = splprep(
+            (self.xy_coarse[0, :], self.xy_coarse[1, :]),
             k=3,
             s=cfg["smoothing"],
             )
         # Get the new, finer, spline parameter range
-        self.u_interp = np.linspace(0.0, 1.0, cfg["num_interpolated"])
-        self.waypoints_interp = np.array(
-            splev(self.u_interp, self.waypoints_tck)
-            )
+        self.u = np.linspace(0.0, 1.0, cfg["num_interpolated"])
+        self.xy = np.array(splev(self.u, self.xy_tck))
 
 
 class EgoMotion:
@@ -42,48 +40,37 @@ class EgoMotion:
         points = np.array(cfg["waypoints"]).T
 
         # Process the (x, y) points
-        self.waypoints_orig = points[:2, :]
+        self.xy_coarse = points[:2, :]
         # Get a (cubic) B-spline representation of the points
-        self.waypoints_tck, self.u_orig = splprep(
-            (self.waypoints_orig[0, :], self.waypoints_orig[1, :]),
+        self.xy_tck, self.u_coarse = splprep(
+            (self.xy_coarse[0, :], self.xy_coarse[1, :]),
             k=3,
             s=cfg["smoothing"],
             )
         # Get the new, finer, spline parameter range
-        self.u_interp = np.linspace(0.0, 1.0, cfg["num_interpolated"])
+        self.u = np.linspace(0.0, 1.0, cfg["num_interpolated"])
         # Interpolate the (x, y) points with a spline
-        self.waypoints_interp = np.array(
-            splev(self.u_interp, self.waypoints_tck)
-            )
+        self.xy = np.array(splev(self.u, self.xy_tck))
 
         # Get the ego motion yaw
-        self.waypoints_interp_der = np.array(
-            splev(self.u_interp, self.waypoints_tck, der=1)
-            )
-        normalised_derivative = self.waypoints_interp_der / \
-            np.linalg.norm(self.waypoints_interp_der, axis=0)
-        self.yaw_interp = np.arctan2(
-            normalised_derivative[1, :],
-            normalised_derivative[0, :],
-            )
-        self.yaw_interp_der = _differentiate_with_splines(
-            self.u_interp,
-            self.yaw_interp,
-            )
+        self.xy_der = np.array(splev(self.u, self.xy_tck, der=1))
+        normalised_der = self.xy_der/np.linalg.norm(self.xy_der, axis=0)
+        self.yaw = np.arctan2(normalised_der[1, :], normalised_der[0, :])
+        self.yaw_der = _differentiate_with_splines(self.u, self.yaw)
 
         # Process ego motion yaw deviation
-        self.yaw_deviation_orig = points[2, :]
+        self.yaw_deviation_coarse = points[2, :]
         self.yaw_deviation_tck, _ = splprep(
-            (self.yaw_deviation_orig,),
-            u=self.u_orig,
+            (self.yaw_deviation_coarse,),
+            u=self.u_coarse,
             s=cfg["smoothing_yaw_deviation"],
             )
         # Interpolate the yaw deviation points with a spline
-        self.yaw_deviation_interp = np.squeeze(
-            splev(self.u_interp, self.yaw_deviation_tck),
+        self.yaw_deviation = np.squeeze(
+            splev(self.u, self.yaw_deviation_tck),
             )
-        self.yaw_deviation_interp_der = np.squeeze(
-            splev(self.u_interp, self.yaw_deviation_tck, der=1),
+        self.yaw_deviation_der = np.squeeze(
+            splev(self.u, self.yaw_deviation_tck, der=1),
             )
 
         # Store index velocity
