@@ -5,6 +5,12 @@ from scipy.interpolate import splev, splprep
 import yaml
 
 
+def _differentiate_with_splines(x, y):
+    # Use no smoothing. We assume that (x, y) is dense enough.
+    tck, _ = splprep((y,), u=x, s=0.0)
+    return np.squeeze(splev(x, tck, der=1))
+
+
 def load_yaml(filename):
     with codecs.open(filename, "r", encoding="utf-8") as f:
         data = yaml.load(f)
@@ -32,10 +38,11 @@ class Lane:
 class EgoMotion:
     def __init__(self, data):
         cfg = data["ego_motion"]
-        # Transpose the arrays (data points as columns)
+        # Transpose the waypoints array (data points as columns)
         points = np.array(cfg["waypoints"]).T
+
+        # Process the (x, y) points
         self.waypoints_orig = points[:2, :]
-        self.yaw_deviation_orig = points[2, :]
         # Get a (cubic) B-spline representation of the points
         self.waypoints_tck, self.u_orig = splprep(
             (self.waypoints_orig[0, :], self.waypoints_orig[1, :]),
@@ -44,17 +51,34 @@ class EgoMotion:
             )
         # Get the new, finer, spline parameter range
         self.u_interp = np.linspace(0.0, 1.0, cfg["num_interpolated"])
-        # Interpolate the (x, y) waypoints with a spline
+        # Interpolate the (x, y) points with a spline
         self.waypoints_interp = np.array(
             splev(self.u_interp, self.waypoints_tck)
             )
 
+        # Get the ego motion yaw
+        self.waypoints_interp_der = np.array(
+            splev(self.u_interp, self.waypoints_tck, der=1)
+            )
+        normalised_derivative = self.waypoints_interp_der / \
+            np.linalg.norm(self.waypoints_interp_der, axis=0)
+        self.yaw_interp = np.arctan2(
+            normalised_derivative[1, :],
+            normalised_derivative[0, :],
+            )
+        self.yaw_interp_der = _differentiate_with_splines(
+            self.u_interp,
+            self.yaw_interp,
+            )
+
+        # Process ego motion yaw deviation
+        self.yaw_deviation_orig = points[2, :]
         self.yaw_deviation_tck, _ = splprep(
             (self.yaw_deviation_orig,),
             u=self.u_orig,
             s=cfg["smoothing_yaw_deviation"],
             )
-        # Interpolate the yaw points with a spline
+        # Interpolate the yaw deviation points with a spline
         self.yaw_deviation_interp = np.squeeze(
             splev(self.u_interp, self.yaw_deviation_tck),
             )
