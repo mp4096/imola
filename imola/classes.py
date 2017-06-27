@@ -12,7 +12,8 @@ def load_yaml(filename):
 
 
 class Lane:
-    def __init__(self, cfg):
+    def __init__(self, data):
+        cfg = data["lane"]
         # Transpose the arrays (data points as columns)
         self.waypoints_orig = np.array(cfg["waypoints"]).T
         # Get a (cubic) B-spline representation of the points
@@ -29,7 +30,8 @@ class Lane:
 
 
 class EgoMotion:
-    def __init__(self, cfg):
+    def __init__(self, data):
+        cfg = data["ego_motion"]
         # Transpose the arrays (data points as columns)
         points = np.array(cfg["waypoints"]).T
         self.waypoints_orig = points[:2, :]
@@ -65,7 +67,8 @@ class EgoMotion:
 
 
 class MeasurementNoise():
-    def __init__(self, cfg):
+    def __init__(self, data):
+        cfg = data["measurement_noise"]
         self.dof = cfg["radial"]["degrees_of_freedom"]
         self.scaling = cfg["radial"]["scaling"]
         self.expected_num = cfg["expected_number_of_measurements"]
@@ -91,6 +94,7 @@ class MeasurementNoise():
 
 
 class Camera():
-    def __init__(self, cfg):
+    def __init__(self, data):
+        cfg = data["camera"]
         self.frame_width = cfg["frame_width"]
         self.frame_height = cfg["frame_height"]
