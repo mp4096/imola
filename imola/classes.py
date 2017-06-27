@@ -78,8 +78,20 @@ class MeasurementNoise():
 
         self.dof = cfg["radial"]["degrees_of_freedom"]
         self.scaling = cfg["radial"]["scaling"]
+        self.expected_num = cfg["expected_number_of_measurements"]
 
-    def sample(self, num_samples):
+    def choose_number_of_samples(self):
+        # Decide how many detected measurements we should have.
+        # Draw this number from the Poisson distribution,
+        # it seems to be a good fit for this kind of modelling;
+        # however, one assumption seems to be violated
+        # (independence of subsequent trials).
+        # See:
+        # * https://en.wikipedia.org/wiki/Poisson_distribution
+        # * https://en.wikipedia.org/wiki/Negative_binomial_distribution
+        return np.random.poisson(self.expected_num)
+
+    def sample_spatial(self, num_samples):
         # Draw the angle from the uniform pdf and
         # the radius from the Student's t-distribution
         rho = np.abs(np.random.standard_t(self.dof, size=num_samples))
