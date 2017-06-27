@@ -49,17 +49,17 @@ class EgoMotion:
             splev(self.u_interp, self.waypoints_tck)
             )
 
-        self.yaw_tck = splprep(
-            (self.waypoints_orig[2, :],),
+        self.yaw_tck, _ = splprep(
+            (self.yaw_orig,),
             u=self.u_orig,
             s=cfg["smoothing"],
             )
         # Interpolate the yaw points with a spline
-        self.yaw_interp = np.array(
-            interpolate.splev(self.u_interp, self.yaw_tck)
+        self.yaw_interp = np.squeeze(
+            splev(self.u_interp, self.yaw_tck),
             )
-        self.yaw_interp_der = np.array(
-            interpolate.splev(self.u_interp, self.yaw_tck, der=1)
+        self.yaw_interp_der = np.squeeze(
+            splev(self.u_interp, self.yaw_tck, der=1),
             )
 
         # Store index velocity
