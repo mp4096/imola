@@ -65,6 +65,9 @@ class EgoMotion:
             interpolate.splev(self.u_interp, self.yaw_tck, der=1)
             )
 
+        # Store index velocity
+        self.velocity = cfg["velocity"]
+
 
 class MeasurementNoise():
     def __init__(self, filename):
