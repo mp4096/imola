@@ -77,9 +77,9 @@ class EgoMotion:
         self.velocity = cfg["velocity"]
 
 
-class MeasurementNoise():
+class MeasurementNoiseCamera():
     def __init__(self, data):
-        cfg = data["measurement_noise"]
+        cfg = data["measurement_noise_camera"]
         self.dof = cfg["radial"]["degrees_of_freedom"]
         self.scaling = cfg["radial"]["scaling"]
         self.expected_num = cfg["expected_number_of_measurements"]
@@ -102,6 +102,19 @@ class MeasurementNoise():
         rho *= self.scaling
         phi = np.random.uniform(low=-np.pi, high=np.pi, size=num_samples)
         return rho*np.vstack((np.cos(phi), np.sin(phi)))
+
+
+class MeasurementNoiseImu():
+    def __init__(self, data):
+        cfg = data["measurement_noise_imu"]
+        self.velocity_std = np.sqrt(cfg["velocity_variance"])
+        self.angular_velocity_std = np.sqrt(cfg["angular_velocity_variance"])
+
+    def sample_velocity(self):
+        return np.random.randn((2,))*self.velocity_std
+
+    def sample_angular_velocity(self):
+        return np.random.randn((1,))*self.angular_velocity_std
 
 
 class Camera():

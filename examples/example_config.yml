@@ -26,11 +26,15 @@ ego_motion:
         - [ 3.85,  0.30,  0.005]
         - [ 2.00, -5.30,  0.010]
 
-measurement_noise:
+measurement_noise_camera:
     expected_number_of_measurements: 10
     radial:
         degrees_of_freedom: 2
         scaling: 0.05
+
+measurement_noise_imu:
+    velocity_variance: 0.1
+    angular_velocity_variance: 0.1
 
 camera:
     frame_width: 0.5

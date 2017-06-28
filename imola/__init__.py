@@ -5,7 +5,8 @@ from .classes import (
     load_yaml,
     Lane,
     EgoMotion,
-    MeasurementNoise,
+    MeasurementNoiseCamera,
+    MeasurementNoiseImu,
     Camera,
     )
 from .transformations import (
