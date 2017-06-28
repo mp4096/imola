@@ -1,6 +1,6 @@
 lane:
     smoothing: 0.05
-    num_interpolated: 100
+    num_interpolated: 200
     waypoints: # [<x (m)>, <y (m)>]
         - [ 0.00,  0.00]
         - [ 0.00,  5.00]
@@ -16,7 +16,7 @@ ego_motion:
     smoothing: 0.05
     smoothing_yaw_deviation: 1.0e-5
     index_velocity: 1 # interpolated samples per time step
-    num_interpolated: 100
+    num_interpolated: 200
     waypoints: # [<x (m)>, <y (m)>, <phi_rel (rad)>]
         - [ 0.50,  0.50,  0.025]
         - [-0.40,  5.00,  0.015]
@@ -38,5 +38,5 @@ measurement_noise_imu:
     angular_velocity_variance: 0.1
 
 camera:
-    frame_width: 0.5
-    frame_height: 1.0
+    frame_width: 2.0
+    frame_height: 3.0
