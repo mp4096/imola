@@ -75,7 +75,13 @@ class EgoMotion:
             )
 
         # Store index velocity
-        self.velocity = cfg["velocity"]
+        self.index_velocity = cfg["index_velocity"]
+
+    def get_velocity(self, idx):
+        return self.xy_der[:, idx]
+
+    def get_angular_velocity(self, idx):
+        return self.yaw_der[idx] + self.yaw_deviation_der[idx]
 
 
 class MeasurementNoiseCamera():
