@@ -3,6 +3,7 @@ import codecs
 import numpy as np
 from scipy.interpolate import splev, splprep
 import yaml
+from .views import filter_within_frame
 
 
 def _differentiate_with_splines(x, y):
@@ -122,3 +123,6 @@ class Camera():
         cfg = data["camera"]
         self.frame_width = cfg["frame_width"]
         self.frame_height = cfg["frame_height"]
+
+    def visible_points(self, points):
+        return filter_within_frame(points, self.frame_width, self.frame_height)

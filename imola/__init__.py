@@ -16,5 +16,4 @@ from .transformations import (
 from .views import (
     get_view_frame_inertial,
     get_car_view,
-    filter_within_frame,
     )
