@@ -16,8 +16,8 @@ def get_measurements(idx, lane, ego_motion, measurement_noise, camera):
     ego_motion : EgoMotion
         ego motion object
 
-    measurement_noise :  MeasurementNoise
-        measurement noise object
+    measurement_noise :  MeasurementNoiseCamera
+        camera / image processing measurement noise object
 
     camera : Camera
         camera object
@@ -34,11 +34,11 @@ def get_measurements(idx, lane, ego_motion, measurement_noise, camera):
 
     """
     ground_truth = get_car_view(
-        lane.waypoints_interp,
+        lane.xy,
         camera.frame_width,
         camera.frame_height,
-        ego_motion.waypoints_interp[:, idx],
-        [ego_motion.yaw_interp[idx]],
+        ego_motion.xy[:, idx],
+        [ego_motion.yaw[idx], ego_motion.yaw_deviation[idx]],
         )
 
     # Decide how many measurements we have

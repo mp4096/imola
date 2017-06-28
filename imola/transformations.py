@@ -10,7 +10,7 @@ def inertial_to_body_frame(points, translation_vec, rotations):
     rot_mat_acc = np.eye(2)
     for phi in np.nditer(rotations):
         rot_mat_acc = _rotation_matrix(phi) @ rot_mat_acc
-    return rot_mat_acc @ points + translation_vec
+    return rot_mat_acc @ points + translation_vec[:, np.newaxis]
 
 
 def body_to_inertial_frame(points, translation_vec, rotations):
@@ -21,7 +21,7 @@ def body_to_inertial_frame(points, translation_vec, rotations):
     rot_mat_acc = np.eye(2)
     for phi in np.nditer(rotations):
         rot_mat_acc = _rotation_matrix(phi) @ rot_mat_acc
-    return rot_mat_acc @ (points - translation_vec)
+    return rot_mat_acc @ (points - translation_vec[:, np.newaxis])
 
 
 def _rotation_matrix(phi):

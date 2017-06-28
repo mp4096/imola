@@ -1,4 +1,4 @@
-from .transformations import inertial_to_body_frame
+from .transformations import inertial_to_body_frame, body_to_inertial_frame
 import numpy as np
 
 
@@ -37,7 +37,7 @@ def get_car_view(lane_inertial_frame, frame_width, frame_height,
         translation_vec,
         rotations,
         )
-    return filter_within_frame(lane_body_frame, width, height)
+    return filter_within_frame(lane_body_frame, frame_width, frame_height)
 
 
 def filter_within_frame(points, frame_width, frame_height):
