@@ -18,5 +18,6 @@ from .views import (
     get_car_view,
     )
 from .simulation import (
-    get_measurements,
+    get_measurements_camera,
+    get_measurements_imu,
     )

@@ -2,8 +2,8 @@ import numpy as np
 from .views import get_car_view, filter_within_frame
 
 
-def get_measurements(idx, lane, ego_motion, measurement_noise, camera):
-    """Generate estimator test data.
+def get_measurements_camera(idx, lane, ego_motion, noise_camera, camera):
+    """Generate test data from the camera.
 
     Parameters
     ----------
@@ -16,7 +16,7 @@ def get_measurements(idx, lane, ego_motion, measurement_noise, camera):
     ego_motion : EgoMotion
         ego motion object
 
-    measurement_noise :  MeasurementNoiseCamera
+    noise_camera :  MeasurementNoiseCamera
         camera / image processing measurement noise object
 
     camera : Camera
@@ -42,7 +42,7 @@ def get_measurements(idx, lane, ego_motion, measurement_noise, camera):
         )
 
     # Decide how many measurements we have
-    num_measurements = measurement_noise.choose_number_of_samples()
+    num_measurements = noise_camera.choose_number_of_samples()
     # Get the indices of the detected measurements.
     # Sample from a uniform integer distribution _with replacement_
     measurement_indices = np.random.randint(
@@ -52,7 +52,7 @@ def get_measurements(idx, lane, ego_motion, measurement_noise, camera):
 
     # Get the measurements and add noise
     measurements = ground_truth[:, measurement_indices] \
-        + measurement_noise.sample_spatial(num_measurements)
+        + noise_camera.sample_spatial(num_measurements)
     # Filter the measurements so they lie within the camera view frame
     measurements = filter_within_frame(
         measurements,
@@ -61,3 +61,47 @@ def get_measurements(idx, lane, ego_motion, measurement_noise, camera):
         )
 
     return measurements, ground_truth
+
+
+def get_measurements_imu(idx, ego_motion, noise_imu):
+    """Generate test data from the IMU.
+
+    Parameters
+    ----------
+    idx : int
+        index of the current car position (interpolated ego motion waypoints)
+
+    ego_motion : EgoMotion
+        ego motion object
+
+    noise_imu :  MeasurementNoiseImu
+        camera / image processing measurement noise object
+
+    Returns
+    -------
+    ground_truth_velocity : (2,) ndarray
+        true velocity
+
+    ground_truth_angular_velocity : float
+        true angular velocity
+
+    measurements_velocity : (2,) ndarray
+        noisy velocity measurements
+
+    measurements_angular_velocity : float
+        noisy angular velocity measurements
+
+    """
+    ground_truth_velocity = ego_motion.get_velocity(idx)
+    ground_truth_angular_velocity = ego_motion.get_angular_velocity(idx)
+    measurements_velocity = \
+        ground_truth_velocity + noise_imu.sample_velocity()
+    measurements_angular_velocity = \
+        ground_truth_angular_velocity + noise_imu.sample_angular_velocity()
+
+    return (
+        ground_truth_velocity,
+        ground_truth_angular_velocity,
+        measurements_velocity,
+        measurements_angular_velocity,
+        )
