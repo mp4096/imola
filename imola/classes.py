@@ -40,48 +40,58 @@ class EgoMotion:
         # Transpose the waypoints array (data points as columns)
         points = np.array(cfg["waypoints"]).T
 
+        # Process the time points
+        self.t_coarse = points[0, :]
+        if not np.all(self.t_coarse[:-1] < self.t_coarse[1:]):
+            raise ValueError("Timestamps must be strictly increasing.")
+
         # Process the (x, y) points
-        self.xy_coarse = points[:2, :]
+        self.xy_coarse = points[1:3, :]
         # Get a (cubic) B-spline representation of the points
-        self.xy_tck, self.u_coarse = splprep(
+        self.xy_tck, _ = splprep(
             (self.xy_coarse[0, :], self.xy_coarse[1, :]),
+            u=self.t_coarse,
             k=3,
             s=cfg["smoothing"],
             )
         # Get the new, finer, spline parameter range
-        self.u = np.linspace(0.0, 1.0, cfg["num_interpolated"])
+        self.t = np.linspace(
+            self.t_coarse[0],
+            self.t_coarse[-1],
+            cfg["num_interpolated"],
+            )
         # Interpolate the (x, y) points with a spline
-        self.xy = np.array(splev(self.u, self.xy_tck))
+        self.xy = np.array(splev(self.t, self.xy_tck))
 
         # Get the ego motion yaw
-        self.xy_der = np.array(splev(self.u, self.xy_tck, der=1))
+        self.xy_der = np.array(splev(self.t, self.xy_tck, der=1))
         normalised_der = self.xy_der/np.linalg.norm(self.xy_der, axis=0)
         self.yaw = np.arctan2(normalised_der[1, :], normalised_der[0, :])
-        self.yaw_der = _differentiate_with_splines(self.u, self.yaw)
+        self.yaw_der = _differentiate_with_splines(self.t, self.yaw)
 
         # Process ego motion yaw deviation
-        self.yaw_deviation_coarse = points[2, :]
+        self.yaw_deviation_coarse = points[3, :]
         self.yaw_deviation_tck, _ = splprep(
             (self.yaw_deviation_coarse,),
-            u=self.u_coarse,
+            u=self.t_coarse,
             s=cfg["smoothing_yaw_deviation"],
             )
         # Interpolate the yaw deviation points with a spline
         self.yaw_deviation = np.squeeze(
-            splev(self.u, self.yaw_deviation_tck),
+            splev(self.t, self.yaw_deviation_tck),
             )
         self.yaw_deviation_der = np.squeeze(
-            splev(self.u, self.yaw_deviation_tck, der=1),
+            splev(self.t, self.yaw_deviation_tck, der=1),
             )
-
-        # Store index velocity
-        self.index_velocity = cfg["index_velocity"]
 
     def get_velocity(self, idx):
         return self.xy_der[:, idx]
 
     def get_angular_velocity(self, idx):
         return self.yaw_der[idx] + self.yaw_deviation_der[idx]
+
+    def find_index(self, time):
+        return np.searchsorted(self.t, time)
 
 
 class MeasurementNoiseCamera():
