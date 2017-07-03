@@ -118,10 +118,10 @@ class MeasurementNoiseImu():
         self.angular_velocity_std = np.sqrt(cfg["angular_velocity_variance"])
 
     def sample_velocity(self):
-        return np.random.randn((2,))*self.velocity_std
+        return np.random.randn(2)*self.velocity_std
 
     def sample_angular_velocity(self):
-        return np.random.randn((1,))*self.angular_velocity_std
+        return np.random.randn(1)*self.angular_velocity_std
 
 
 class Camera():
