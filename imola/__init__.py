@@ -21,3 +21,5 @@ from .simulation import (
     get_measurements_camera,
     get_measurements_imu,
     )
+
+from . import models
