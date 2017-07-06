@@ -1,0 +1,12 @@
+[package]
+name = "dfd_bindings"
+version = "0.1.0"
+authors = ["Mikhail Pak <mikhail.pak@tum.de>"]
+publish = false
+
+[dependencies]
+dfd = { version = "0.1.0", path="../../../dfd-rs" }
+
+[lib]
+name = "dfd_bindings"
+crate-type = ["dylib"]
