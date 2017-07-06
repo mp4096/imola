@@ -1,8 +1,6 @@
 import numpy as np
 from scipy.interpolate import splev, splrep
 import matplotlib.pyplot as plt
-import seaborn as sns
-sns.set_style("whitegrid")
 
 
 def _lin_interpolate_1d_nodes(x_coarse, num_interp):
@@ -43,15 +41,14 @@ def interpolated_polygonal_chains(states, len_segment, num_interp):
     return nodes_fine_x, nodes_fine_y
 
 
-def plot_heatmap(states, len_segment, num_interp=200, cmap="magma"):
+def plot_heatmap(states, len_segment, num_interp=200,
+                 gridsize=50, cmap="inferno"):
     x, y = interpolated_polygonal_chains(states, len_segment, num_interp)
     f, ax = plt.subplots()
     ax.set_aspect("equal")
-    ax = sns.kdeplot(
+    ax.hexbin(
         x.ravel(order="F"),
         y.ravel(order="F"),
-        cmap=cmap,
-        shade=True,
-        shade_lowest=False,
-        )
+        gridsize=gridsize,
+        cmap=cmap)
     return f, ax
