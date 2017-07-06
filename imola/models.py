@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.interpolate import splev, splrep
 import matplotlib.pyplot as plt
+from .dfd_bindings.rust_bindings import dfd
 
 
 def _lin_interpolate_1d_nodes(x_coarse, num_interp):
@@ -52,3 +53,14 @@ def plot_heatmap(states, len_segment, num_interp=200,
         gridsize=gridsize,
         cmap=cmap)
     return f, ax
+
+
+def compare_to_ground_truth(state, ground_truth, len_segment, num_interp=200):
+    state, ground_truth = np.array(state), np.array(ground_truth)
+    x, y = interpolated_polygonal_chains(
+        state[:, np.newaxis],
+        len_segment,
+        num_interp,
+        )
+    model = np.vstack((x.squeeze(), y.squeeze()))
+    return dfd(model, ground_truth)
