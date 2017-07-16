@@ -54,11 +54,7 @@ def get_measurements_camera(idx, lane, ego_motion, noise_camera, camera):
     measurements = ground_truth[:, measurement_indices] \
         + noise_camera.sample_spatial(num_measurements)
     # Filter the measurements so they lie within the camera view frame
-    measurements = filter_within_frame(
-        measurements,
-        camera.frame_width,
-        camera.frame_height,
-        )
+    measurements = camera.visible_points(measurements)
 
     return measurements, ground_truth
 
