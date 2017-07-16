@@ -11,16 +11,35 @@ def _lin_interpolate_1d_nodes(x_coarse, num_interp):
     return splev(u_fine, tck)
 
 
+def _get_nodes_x(state, len_segment):
+    cum_angles = np.cumsum(state[2:])
+    nodes_x = np.empty((len(state) - 1,))
+    nodes_x[0] = state[0]  # set the x-coordinate
+    nodes_x[1:] = np.cos(cum_angles)*len_segment
+    nodes_x = np.cumsum(nodes_x)
+    return nodes_x
+
+
+def _get_nodes_y(state, len_segment):
+    cum_angles = np.cumsum(state[2:])
+    nodes_y = np.empty((len(state) - 1,))
+    nodes_y[0] = state[1]  # set the y-coordinate
+    nodes_y[1:] = np.sin(cum_angles)*len_segment
+    nodes_y = np.cumsum(nodes_y)
+    return nodes_y
+
+
+def get_nodes(state, len_segment):
+    return _get_nodes_x(state, len_segment), _get_nodes_y(state, len_segment)
+
+
 def interpolated_polygonal_chains(states, len_segment, num_interp):
-    num_chains = states.shape[1]
-    num_nodes = states.shape[0] - 1
-
-    cum_angles = np.cumsum(states[2:, :], axis=0)
-
-    nodes_x = np.empty((num_nodes, num_chains))
-    nodes_x[0, :] = states[0, :]  # set the x-coordinate of all first nodes
-    nodes_x[1:, :] = np.cos(cum_angles)*len_segment
-    nodes_x = np.cumsum(nodes_x, axis=0)
+    nodes_x = np.apply_along_axis(
+        _get_nodes_x,
+        0,
+        states,
+        len_segment,
+        )
     nodes_fine_x = np.apply_along_axis(
         _lin_interpolate_1d_nodes,
         0,
@@ -28,10 +47,12 @@ def interpolated_polygonal_chains(states, len_segment, num_interp):
         num_interp,
         )
 
-    nodes_y = np.empty((num_nodes, num_chains))
-    nodes_y[0, :] = states[1, :]  # set the y-coordinate of all first nodes
-    nodes_y[1:, :] = np.sin(cum_angles)*len_segment
-    nodes_y = np.cumsum(nodes_y, axis=0)
+    nodes_y = np.apply_along_axis(
+        _get_nodes_y,
+        0,
+        states,
+        len_segment,
+        )
     nodes_fine_y = np.apply_along_axis(
         _lin_interpolate_1d_nodes,
         0,
