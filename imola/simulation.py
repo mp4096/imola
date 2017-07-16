@@ -1,5 +1,5 @@
 import numpy as np
-from .views import get_car_view, filter_within_frame
+from .views import get_car_view
 
 
 def get_measurements_camera(idx, lane, ego_motion, noise_camera, camera):
