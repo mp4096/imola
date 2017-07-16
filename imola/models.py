@@ -55,7 +55,8 @@ def plot_heatmap(states, len_segment, num_interp=200,
     return f, ax
 
 
-def compare_to_ground_truth(state, ground_truth, len_segment, num_interp=200):
+def compare_to_ground_truth(state, ground_truth, len_segment,
+                            camera, num_interp=200):
     state, ground_truth = np.array(state), np.array(ground_truth)
     x, y = interpolated_polygonal_chains(
         state[:, np.newaxis],
@@ -63,4 +64,5 @@ def compare_to_ground_truth(state, ground_truth, len_segment, num_interp=200):
         num_interp,
         )
     model = np.vstack((x.squeeze(), y.squeeze()))
+    model = camera.visible_points(model)
     return dfd(model, ground_truth)
