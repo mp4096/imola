@@ -86,4 +86,8 @@ def compare_to_ground_truth(state, ground_truth, len_segment,
         )
     model = np.vstack((x.squeeze(), y.squeeze()))
     model = camera.visible_points(model)
-    return dfd(model, ground_truth)
+
+    if model.shape[1] == 0 or ground_truth.shape[1] == 0:
+        return np.inf
+    else:
+        return dfd(model, ground_truth)
