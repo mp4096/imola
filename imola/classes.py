@@ -6,12 +6,6 @@ import yaml
 from .views import filter_within_frame
 
 
-def _differentiate_with_splines(x, y):
-    # Use no smoothing. We assume that (x, y) is dense enough.
-    tck, _ = splprep((y,), u=x, s=0.0)
-    return np.squeeze(splev(x, tck, der=1))
-
-
 def load_yaml(filename):
     with codecs.open(filename, "r", encoding="utf-8") as f:
         data = yaml.load(f)
@@ -67,7 +61,23 @@ class EgoMotion:
         self.xy_der = np.array(splev(self.t, self.xy_tck, der=1))
         normalised_der = self.xy_der/np.linalg.norm(self.xy_der, axis=0)
         self.yaw = np.arctan2(normalised_der[1, :], normalised_der[0, :])
-        self.yaw_der = _differentiate_with_splines(self.t, self.yaw)
+
+        # Compute the ego motion yaw derivative
+        #
+        # Rationale: If we compute the yaw derivative using the naive approach
+        # (by differentiating yaw angle), we shall run into problems when
+        # the yaw angles jumps between -π and π.
+        #
+        # \dot{\phi}
+        # =
+        # \frac{-\dot{y} \ddot{x} + \dot{x} \ddot{y}}{\dot{x}^2 + \dot{y}^2}
+        #
+        xy_der2 = np.array(splev(self.t, self.xy_tck, der=2))
+        self.xy_der2 = xy_der2
+        xy_der_squared_norm = (self.xy_der**2).sum(axis=0)
+        self.yaw_der = \
+            -self.xy_der[1, :]*xy_der2[0, :] + self.xy_der[0, :]*xy_der2[1, :]
+        self.yaw_der /= xy_der_squared_norm
 
         # Process ego motion yaw deviation
         self.yaw_deviation_coarse = points[3, :]
